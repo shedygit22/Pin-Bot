@@ -3,10 +3,9 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
 import Link from "next/link";
 import {
-  LayoutDashboard, CalendarDays, Settings, Library, LogOut, Sparkles,
+  LayoutDashboard, CalendarDays, Settings, Library, Sparkles,
   TrendingUp, PinIcon, BarChart3, Clock, CheckCircle2, RefreshCw,
   MessageCircle, Bell, ChevronRight
 } from "lucide-react";
@@ -71,10 +70,7 @@ export default function DashboardPage() {
             </Link>
           ))}
         </nav>
-        <button onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition mt-auto">
-          <LogOut className="w-4 h-4" /> Sign Out
-        </button>
+        <div className="mt-auto" />
       </aside>
 
       <div className="flex-1 flex flex-col min-h-screen">
