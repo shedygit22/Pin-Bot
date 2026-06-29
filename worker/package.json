@@ -1,0 +1,11 @@
+{
+  "name": "pinbot-worker",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "bullmq": "^5.0.0",
+    "ioredis": "^5.4.0",
+    "@prisma/client": "^6.0.0",
+    "axios": "^1.7.0"
+  }
+}

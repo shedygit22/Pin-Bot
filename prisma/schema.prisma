@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String?
+  name              String?
+  timezone          String    @default("UTC")
+  onboardingComplete Boolean  @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  pinterestAccounts PinterestAccount[]
+  brandSettings     BrandSettings?
+  contentCalendars  ContentCalendar[]
+  contentEntries    ContentEntry[]
+  scheduledPins     ScheduledPin[]
+  chatConversations ChatConversation[]
+  notifications     Notification[]
+  emailLogs         EmailLog[]
+
+  @@map("users")
+}
+
+model PinterestAccount {
+  id              String   @id @default(cuid())
+  userId          String
+  pinterestUserId String?
+  username        String?
+  accessToken     String
+  refreshToken    String?
+  tokenExpiresAt  DateTime?
+  boardsJson      String?
+  connectedAt     DateTime @default(now())
+  lastRefreshedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
+  @@map("pinterest_accounts")
+}
+
+model BrandSettings {
+  id                      String   @id @default(cuid())
+  userId                  String   @unique
+  brandName               String   @default("")
+  nicheDescription        String   @default("")
+  brandVoice              String   @default("professional")
+  brandColorsJson         String   @default("[]")
+  logoUrl                 String?
+  watermarkUrl            String?
+  fontPreference          String   @default("inter")
+  defaultPinsPerDay       Int      @default(4)
+  preferredPostingWindowJson String @default("{}")
+  autoFillEnabled         Boolean  @default(false)
+  blackoutDatesJson       String   @default("[]")
+  imageStylePreferencesJson String @default("{}")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("brand_settings")
+}
+
+model ContentCalendar {
+  id            String   @id @default(cuid())
+  userId        String
+  fileName      String
+  fileType      String
+  fileUrl       String?
+  month         Int?
+  year          Int?
+  status        String   @default("parsing")
+  totalEntries  Int      @default(0)
+  uploadedAt    DateTime @default(now())
+  parsedAt      DateTime?
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entries ContentEntry[]
+
+  @@map("content_calendars")
+}
+
+model ContentEntry {
+  id                  String   @id @default(cuid())
+  calendarId          String
+  userId              String
+  targetDate          DateTime
+  topicOrTitle        String
+  blogUrl             String
+  boardName           String
+  boardId             String?
+  contentCategory     String?
+  extraNotes          String?
+  preferredStyle      String?
+  brandColorsOverride String?
+  pinsPerDayOverride  Int?
+  userImageUrl        String?
+  status              String   @default("pending")
+  createdAt           DateTime @default(now())
+
+  calendar      ContentCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheduledPins ScheduledPin[]
+
+  @@map("content_entries")
+}
+
+model ScheduledPin {
+  id                    String    @id @default(cuid())
+  entryId               String
+  userId                String
+  boardId               String?
+  boardName             String?
+  generatedTitle        String?
+  generatedDescription  String?
+  generatedKeywords     String?
+  generatedHashtags     String?
+  generatedAltText      String?
+  generatedCta          String?
+  imageUrl              String?
+  imageSource           String?
+  imagePromptUsed       String?
+  blogUrlWithUtm        String?
+  scheduledAt           DateTime
+  status                String    @default("pending")
+  pinterestPinId        String?
+  pinterestPinUrl       String?
+  retryCount            Int       @default(0)
+  lastRetryAt           DateTime?
+  publishedAt           DateTime?
+  createdAt             DateTime  @default(now())
+
+  entry   ContentEntry   @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analytics PinAnalytics[]
+
+  @@map("scheduled_pins")
+}
+
+model PinAnalytics {
+  id              String   @id @default(cuid())
+  pinId           String
+  pinterestPinId  String?
+  impressions     Int      @default(0)
+  saves           Int      @default(0)
+  clicks          Int      @default(0)
+  closeups        Int      @default(0)
+  engagementRate  Float?
+  fetchedAt       DateTime @default(now())
+  dateRangeStart  DateTime?
+  dateRangeEnd    DateTime?
+
+  pin ScheduledPin @relation(fields: [pinId], references: [id], onDelete: Cascade)
+
+  @@map("pin_analytics")
+}
+
+model JobLog {
+  id              String    @id @default(cuid())
+  pinId           String?
+  jobType         String
+  attemptNumber   Int       @default(1)
+  status          String
+  errorMessage    String?
+  errorCode       String?
+  executionTimeMs Int?
+  executedAt      DateTime  @default(now())
+
+  @@map("job_logs")
+}
+
+model ChatConversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New Chat")
+  isArchived Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id              String   @id @default(cuid())
+  conversationId  String
+  userId          String
+  role            String
+  content         String?
+  toolCallsJson   String?
+  tokensUsed      Int?
+  createdAt       DateTime @default(now())
+
+  conversation ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String?
+  actionUrl String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model EmailLog {
+  id          String   @id @default(cuid())
+  userId      String
+  emailType   String
+  subject     String
+  status      String
+  sentAt      DateTime @default(now())
+  errorMessage String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("email_logs")
+}

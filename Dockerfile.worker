@@ -1,0 +1,13 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY worker/package.json worker/package-lock.json* ./
+RUN npm ci
+
+COPY worker/ .
+COPY prisma/ ./prisma/
+
+RUN npx prisma generate
+
+CMD ["node", "index.js"]
