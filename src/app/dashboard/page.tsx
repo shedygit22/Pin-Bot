@@ -28,13 +28,16 @@ export default function DashboardPage() {
         fetch("/api/analytics"),
         fetch("/api/notifications"),
       ]);
-      if (!analyticsRes.ok) { router.push("/"); return; }
-      const analytics = await analyticsRes.json();
-      const notifData = await notifRes.json();
-      setData(analytics);
-      setNotifications(notifData.notifications);
-      setUnreadCount(notifData.unreadCount);
-    } catch { router.push("/"); }
+      if (analyticsRes.ok) {
+        const analytics = await analyticsRes.json();
+        setData(analytics);
+      }
+      if (notifRes.ok) {
+        const notifData = await notifRes.json();
+        setNotifications(notifData.notifications);
+        setUnreadCount(notifData.unreadCount);
+      }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 

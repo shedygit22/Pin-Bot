@@ -24,10 +24,11 @@ export default function ContentLibraryPage() {
   async function fetchPins() {
     try {
       const res = await fetch("/api/pins/schedule");
-      if (!res.ok) { router.push("/"); return; }
-      const data = await res.json();
-      setPins(data.pins || []);
-    } catch { router.push("/"); }
+      if (res.ok) {
+        const data = await res.json();
+        setPins(data.pins || []);
+      }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 

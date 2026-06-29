@@ -20,10 +20,11 @@ export default function SettingsPage() {
   async function fetchSettings() {
     try {
       const res = await fetch("/api/settings");
-      if (!res.ok) { router.push("/"); return; }
-      const data = await res.json();
-      setSettings(data);
-    } catch { router.push("/"); }
+      if (res.ok) {
+        const data = await res.json();
+        setSettings(data);
+      }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 

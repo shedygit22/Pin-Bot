@@ -29,10 +29,11 @@ export default function AnalyticsPage() {
     setLoading(true);
     try {
       const res = await fetch(`/api/analytics?period=${period}`);
-      if (!res.ok) { router.push("/"); return; }
-      const result = await res.json();
-      setData(result);
-    } catch { router.push("/"); }
+      if (res.ok) {
+        const result = await res.json();
+        setData(result);
+      }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 

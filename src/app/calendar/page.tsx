@@ -25,10 +25,11 @@ export default function CalendarPage() {
       const start = startOfMonth(currentMonth);
       const end = endOfMonth(currentMonth);
       const res = await fetch(`/api/pins/schedule?startDate=${start.toISOString()}&endDate=${end.toISOString()}`);
-      if (!res.ok) { router.push("/"); return; }
-      const data = await res.json();
-      setPins(data.pins || []);
-    } catch { router.push("/"); }
+      if (res.ok) {
+        const data = await res.json();
+        setPins(data.pins || []);
+      }
+    } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }
 
