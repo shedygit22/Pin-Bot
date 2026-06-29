@@ -1,5 +1,5 @@
 const PINTEREST_AUTH_URL = "https://www.pinterest.com/oauth";
-const REDIRECT_URI = process.env.PINTEREST_REDIRECT_URI || "http://localhost:3000/api/auth/callback/pinterest";
+const REDIRECT_URI = process.env.PINTEREST_REDIRECT_URI || "http://localhost:3000/api/pinterest/callback";
 
 const SCOPES = [
   "boards:read",
