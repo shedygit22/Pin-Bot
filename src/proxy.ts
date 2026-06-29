@@ -6,16 +6,14 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isPublicPath =
     pathname === "/" ||
-    pathname === "/login" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/health") ||
-    pathname.startsWith("/api/webhook") ||
     pathname === "/favicon.ico";
 
   if (isPublicPath) return NextResponse.next();
   if (!isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
   }
   return NextResponse.next();
 });
