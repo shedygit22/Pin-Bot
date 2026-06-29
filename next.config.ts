@@ -10,10 +10,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "api-inference.huggingface.co" },
     ],
   },
-  webpack: (config: any, { isServer }: { isServer: boolean }) => {
-    config.resolve.fallback = { fs: false, net: false, tls: false };
-    return config;
-  },
   serverExternalPackages: ["sharp", "bullmq", "ioredis"],
   typescript: {
     ignoreBuildErrors: true,
